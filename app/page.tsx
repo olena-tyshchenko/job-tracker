@@ -30,6 +30,7 @@ export default function Home() {
   const [status, setStatus] = useState("Saved");
   const [company, setCompany] = useState("");
   const [jobs, setJobs] = useState(initialJobs);
+  const [filter, setFilter] = useState("All");
 
   function addJob() {
     if (!position || !company) {
@@ -49,11 +50,15 @@ export default function Home() {
     setStatus("Saved");
     setShowForm(false);
   }
+
   function changeStatus(id: number, newStatus: string) {
     setJobs(
       jobs.map((job) => (job.id === id ? { ...job, status: newStatus } : job)),
     );
   }
+
+  const filteredJobs =
+    filter === "All" ? jobs : jobs.filter((job) => job.status === filter);
 
   return (
     <main className="min-h-screen bg-gray-100 p-10">
@@ -110,9 +115,25 @@ export default function Home() {
           </button>
         </div>
       )}
+      <div className="mb-6">
+        <label className="mr-2 font-medium">Filter:</label>
+
+        <select
+          value={filter}
+          onChange={(event) => setFilter(event.target.value)}
+          className="rounded border p-2"
+        >
+          <option value="All">All</option>
+          <option value="Saved">Saved</option>
+          <option value="Applied">Applied</option>
+          <option value="Interview">Interview</option>
+          <option value="Offer">Offer</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
 
       <div className="space-y-5">
-        {jobs.map((job) => (
+        {filteredJobs.map((job) => (
           <JobCard
             key={job.id}
             id={job.id}

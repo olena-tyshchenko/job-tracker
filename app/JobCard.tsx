@@ -1,3 +1,11 @@
+const statusStyles = {
+  Saved: "bg-gray-200 text-gray-800",
+  Applied: "bg-blue-100 text-blue-800",
+  Interview: "bg-yellow-100 text-yellow-800",
+  Offer: "bg-green-100 text-green-800",
+  Rejected: "bg-red-100 text-red-800",
+};
+
 type JobCardProps = {
   id: number;
   position: string;
@@ -25,7 +33,9 @@ export default function JobCard({
         <select
           value={status}
           onChange={(event) => onStatusChange(id, event.target.value)}
-          className="rounded border p-2"
+          className={`rounded border p-2 font-medium ${
+            statusStyles[status as keyof typeof statusStyles]
+          }`}
         >
           <option value="Saved">Saved</option>
           <option value="Applied">Applied</option>
