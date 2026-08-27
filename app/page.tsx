@@ -49,6 +49,11 @@ export default function Home() {
     setStatus("Saved");
     setShowForm(false);
   }
+  function changeStatus(id: number, newStatus: string) {
+    setJobs(
+      jobs.map((job) => (job.id === id ? { ...job, status: newStatus } : job)),
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-100 p-10">
@@ -97,6 +102,12 @@ export default function Home() {
           >
             Save
           </button>
+          <button
+            onClick={() => setShowForm(false)}
+            className="ml-3 rounded border px-4 py-2"
+          >
+            Cancel
+          </button>
         </div>
       )}
 
@@ -104,9 +115,11 @@ export default function Home() {
         {jobs.map((job) => (
           <JobCard
             key={job.id}
+            id={job.id}
             position={job.position}
             company={job.company}
             status={job.status}
+            onStatusChange={changeStatus}
           />
         ))}
       </div>
