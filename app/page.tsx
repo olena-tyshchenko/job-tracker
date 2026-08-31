@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 
 const initialJobs = [
@@ -31,6 +31,23 @@ export default function Home() {
   const [company, setCompany] = useState("");
   const [jobs, setJobs] = useState(initialJobs);
   const [filter, setFilter] = useState("All");
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const savedJobs = localStorage.getItem("jobs");
+
+    if (savedJobs) {
+      setJobs(JSON.parse(savedJobs));
+    }
+
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("jobs", JSON.stringify(jobs));
+    }
+  }, [jobs, isLoaded]);
 
   function addJob() {
     if (!position || !company) {
@@ -60,6 +77,36 @@ export default function Home() {
   const filteredJobs =
     filter === "All" ? jobs : jobs.filter((job) => job.status === filter);
 
+  function deleteJob(id: number) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this job?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setJobs(jobs.filter((job) => job.id !== id));
+  }
+  function editJob(
+    id: number,
+    currentPosition: string,
+    currentCompany: string,
+  ) {
+    const newPosition = window.prompt("Edit position:", currentPosition);
+    if (newPosition === null) return;
+
+    const newCompany = window.prompt("Edit company:", currentCompany);
+    if (newCompany === null) return;
+
+    setJobs(
+      jobs.map((job) =>
+        job.id === id
+          ? { ...job, position: newPosition, company: newCompany }
+          : job,
+      ),
+    );
+  }
   return (
     <main className="min-h-screen bg-gray-100 p-10">
       <h1 className="mb-2 text-3xl font-bold">Job Application Tracker</h1>
@@ -141,6 +188,8 @@ export default function Home() {
             company={job.company}
             status={job.status}
             onStatusChange={changeStatus}
+            onDelete={deleteJob}
+            onEdit={editJob}
           />
         ))}
       </div>

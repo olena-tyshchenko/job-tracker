@@ -12,14 +12,17 @@ type JobCardProps = {
   company: string;
   status: string;
   onStatusChange: (id: number, newStatus: string) => void;
+  onDelete: (id: number) => void;
+  onEdit: (id: number, position: string, company: string) => void;
 };
-
 export default function JobCard({
   id,
   position,
   company,
   status,
   onStatusChange,
+  onDelete,
+  onEdit,
 }: JobCardProps) {
   return (
     <div className="max-w-md rounded-xl bg-white p-6 shadow">
@@ -43,6 +46,18 @@ export default function JobCard({
           <option value="Offer">Offer</option>
           <option value="Rejected">Rejected</option>
         </select>
+        <button
+          onClick={() => onEdit(id, position, company)}
+          className="ml-2 mt-4 rounded border px-3 py-1"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => onDelete(id)}
+          className="mt-4 rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );
