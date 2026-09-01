@@ -1,0 +1,18 @@
+// use prisma-next
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Job {
+  id        Int      @id @default(autoincrement())
+  position  String
+  company   String
+  status    String   @default("Saved")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
