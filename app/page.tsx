@@ -34,32 +34,35 @@ export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const savedJobs = localStorage.getItem("jobs");
+    async function loadJobs() {
+      const response = await fetch("/api/jobs");
+      const data = await response.json();
 
-    if (savedJobs) {
-      setJobs(JSON.parse(savedJobs));
+      setJobs(data);
+      setIsLoaded(true);
     }
 
-    setIsLoaded(true);
+    loadJobs();
   }, []);
 
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("jobs", JSON.stringify(jobs));
-    }
-  }, [jobs, isLoaded]);
-
-  function addJob() {
+  async function addJob() {
     if (!position || !company) {
       return;
     }
 
-    const newJob = {
-      id: Date.now(),
-      position: position,
-      company: company,
-      status: status,
-    };
+    const response = await fetch("/api/jobs", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        position,
+        company,
+        status,
+      }),
+    });
+
+    const newJob = await response.json();
 
     setJobs([...jobs, newJob]);
     setPosition("");
@@ -68,26 +71,39 @@ export default function Home() {
     setShowForm(false);
   }
 
-  function changeStatus(id: number, newStatus: string) {
-    setJobs(
-      jobs.map((job) => (job.id === id ? { ...job, status: newStatus } : job)),
-    );
+  async function changeStatus(id: number, newStatus: string) {
+    const response = await fetch(`/api/jobs/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: newStatus,
+      }),
+    });
+
+    const updatedJob = await response.json();
+
+    setJobs(jobs.map((job) => (job.id === id ? updatedJob : job)));
   }
 
   const filteredJobs =
     filter === "All" ? jobs : jobs.filter((job) => job.status === filter);
 
-  function deleteJob(id: number) {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this job?",
-    );
+  async function deleteJob(id: number) {
+    const confirmed = window.confirm("Delete this job?");
 
     if (!confirmed) {
       return;
     }
 
+    await fetch(`/api/jobs/${id}`, {
+      method: "DELETE",
+    });
+
     setJobs(jobs.filter((job) => job.id !== id));
   }
+
   function editJob(
     id: number,
     currentPosition: string,

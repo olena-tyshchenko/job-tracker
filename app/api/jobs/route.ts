@@ -6,3 +6,17 @@ export async function GET() {
 
   return NextResponse.json(jobs);
 }
+
+export async function POST(request: Request) {
+  const body = await request.json();
+
+  const newJob = await prisma.job.create({
+    data: {
+      position: body.position,
+      company: body.company,
+      status: body.status || "Saved",
+    },
+  });
+
+  return NextResponse.json(newJob);
+}
