@@ -3,43 +3,38 @@
 import { useEffect, useState } from "react";
 import JobCard from "./JobCard";
 
-const initialJobs = [
-  {
-    id: 1,
-    position: "QA Tester",
-    company: "Siemens",
-    status: "Applied",
-  },
-  {
-    id: 2,
-    position: "Warehouse Technician",
-    company: "Amazon",
-    status: "Interview",
-  },
-  {
-    id: 3,
-    position: "Data Analyst",
-    company: "Deutsche Bahn",
-    status: "Saved",
-  },
-];
-
 export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [position, setPosition] = useState("");
   const [status, setStatus] = useState("Saved");
   const [company, setCompany] = useState("");
-  const [jobs, setJobs] = useState(initialJobs);
+  const [jobs, setJobs] = useState<any[]>([]);
   const [filter, setFilter] = useState("All");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadJobs() {
-      const response = await fetch("/api/jobs");
-      const data = await response.json();
+      try {
+        setLoading(true);
+        setError("");
 
-      setJobs(data);
-      setIsLoaded(true);
+        const response = await fetch("/api/jobs");
+
+        if (!response.ok) {
+          throw new Error("Failed to load jobs");
+        }
+
+        const data = await response.json();
+        setJobs(data);
+      } catch (error) {
+        console.error(error);
+        setError("Could not load jobs.");
+      } finally {
+        setLoading(false);
+        setIsLoaded(true);
+      }
     }
 
     loadJobs();
@@ -104,7 +99,7 @@ export default function Home() {
     setJobs(jobs.filter((job) => job.id !== id));
   }
 
-  function editJob(
+  async function editJob(
     id: number,
     currentPosition: string,
     currentCompany: string,
@@ -115,13 +110,20 @@ export default function Home() {
     const newCompany = window.prompt("Edit company:", currentCompany);
     if (newCompany === null) return;
 
-    setJobs(
-      jobs.map((job) =>
-        job.id === id
-          ? { ...job, position: newPosition, company: newCompany }
-          : job,
-      ),
-    );
+    const response = await fetch(`/api/jobs/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        position: newPosition,
+        company: newCompany,
+      }),
+    });
+
+    const updatedJob = await response.json();
+
+    setJobs(jobs.map((job) => (job.id === id ? updatedJob : job)));
   }
   return (
     <main className="min-h-screen bg-gray-100 p-10">
@@ -196,18 +198,27 @@ export default function Home() {
       </div>
 
       <div className="space-y-5">
-        {filteredJobs.map((job) => (
-          <JobCard
-            key={job.id}
-            id={job.id}
-            position={job.position}
-            company={job.company}
-            status={job.status}
-            onStatusChange={changeStatus}
-            onDelete={deleteJob}
-            onEdit={editJob}
-          />
-        ))}
+        {loading && <p>Loading jobs...</p>}
+
+        {error && <p className="text-red-600">{error}</p>}
+
+        {!loading && !error && filteredJobs.length === 0 && (
+          <p>No jobs found.</p>
+        )}
+
+        {!loading &&
+          filteredJobs.map((job) => (
+            <JobCard
+              key={job.id}
+              id={job.id}
+              position={job.position}
+              company={job.company}
+              status={job.status}
+              onStatusChange={changeStatus}
+              onDelete={deleteJob}
+              onEdit={editJob}
+            />
+          ))}
       </div>
     </main>
   );

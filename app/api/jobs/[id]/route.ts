@@ -13,7 +13,9 @@ export async function PATCH(
       id: Number(id),
     },
     data: {
-      status: body.status,
+      ...(body.position !== undefined && { position: body.position }),
+      ...(body.company !== undefined && { company: body.company }),
+      ...(body.status !== undefined && { status: body.status }),
     },
   });
 
