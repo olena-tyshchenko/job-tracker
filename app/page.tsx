@@ -10,7 +10,6 @@ export default function Home() {
   const [company, setCompany] = useState("");
   const [jobs, setJobs] = useState<any[]>([]);
   const [filter, setFilter] = useState("All");
-  const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -33,7 +32,6 @@ export default function Home() {
         setError("Could not load jobs.");
       } finally {
         setLoading(false);
-        setIsLoaded(true);
       }
     }
 
@@ -59,7 +57,7 @@ export default function Home() {
 
     const newJob = await response.json();
 
-    setJobs([...jobs, newJob]);
+    setJobs([newJob, ...jobs]);
     setPosition("");
     setCompany("");
     setStatus("Saved");
@@ -81,9 +79,6 @@ export default function Home() {
 
     setJobs(jobs.map((job) => (job.id === id ? updatedJob : job)));
   }
-
-  const filteredJobs =
-    filter === "All" ? jobs : jobs.filter((job) => job.status === filter);
 
   async function deleteJob(id: number) {
     const confirmed = window.confirm("Delete this job?");
@@ -125,11 +120,23 @@ export default function Home() {
 
     setJobs(jobs.map((job) => (job.id === id ? updatedJob : job)));
   }
+
+  const filteredJobs =
+    filter === "All" ? jobs : jobs.filter((job) => job.status === filter);
+
   return (
     <main className="min-h-screen bg-gray-100 p-10">
-      <h1 className="mb-2 text-3xl font-bold">Job Application Tracker</h1>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Job Application Tracker</h1>
+          <p className="mt-2 text-gray-600">My first Full-Stack project</p>
+        </div>
 
-      <p className="mb-8 text-gray-600">My first Full-Stack project</p>
+        <div className="rounded-xl bg-white px-4 py-3 shadow">
+          <p className="text-sm text-gray-500">Total applications</p>
+          <p className="text-2xl font-bold">{jobs.length}</p>
+        </div>
+      </div>
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
         <div className="rounded-xl bg-white p-4 shadow">
           <p className="text-sm text-gray-500">Saved</p>
@@ -167,12 +174,31 @@ export default function Home() {
         </div>
       </div>
 
-      <button
-        onClick={() => setShowForm(true)}
-        className="mb-6 rounded-lg bg-black px-4 py-2 text-white"
-      >
-        Add Job
-      </button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <button
+          onClick={() => setShowForm(true)}
+          className="rounded-lg bg-black px-4 py-2 font-medium text-white hover:bg-gray-800"
+        >
+          Add Job
+        </button>
+
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium text-gray-600">Filter:</label>
+
+          <select
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+          >
+            <option value="All">All</option>
+            <option value="Saved">Saved</option>
+            <option value="Applied">Applied</option>
+            <option value="Interview">Interview</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
 
       {showForm && (
         <div className="mb-6 max-w-md rounded-xl bg-white p-6 shadow">
@@ -191,6 +217,7 @@ export default function Home() {
             className="mb-3 w-full rounded border p-2"
             placeholder="Company"
           />
+
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value)}
@@ -202,12 +229,14 @@ export default function Home() {
             <option value="Offer">Offer</option>
             <option value="Rejected">Rejected</option>
           </select>
+
           <button
             onClick={addJob}
             className="rounded bg-black px-4 py-2 text-white"
           >
             Save
           </button>
+
           <button
             onClick={() => setShowForm(false)}
             className="ml-3 rounded border px-4 py-2"
@@ -216,24 +245,8 @@ export default function Home() {
           </button>
         </div>
       )}
-      <div className="mb-6">
-        <label className="mr-2 font-medium">Filter:</label>
 
-        <select
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
-          className="rounded border p-2"
-        >
-          <option value="All">All</option>
-          <option value="Saved">Saved</option>
-          <option value="Applied">Applied</option>
-          <option value="Interview">Interview</option>
-          <option value="Offer">Offer</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-      </div>
-
-      <div className="space-y-5">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {loading && <p>Loading jobs...</p>}
 
         {error && <p className="text-red-600">{error}</p>}
