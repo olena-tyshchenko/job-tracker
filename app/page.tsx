@@ -130,6 +130,42 @@ export default function Home() {
       <h1 className="mb-2 text-3xl font-bold">Job Application Tracker</h1>
 
       <p className="mb-8 text-gray-600">My first Full-Stack project</p>
+      <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
+        <div className="rounded-xl bg-white p-4 shadow">
+          <p className="text-sm text-gray-500">Saved</p>
+          <p className="text-2xl font-bold">
+            {jobs.filter((job) => job.status === "Saved").length}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white p-4 shadow">
+          <p className="text-sm text-gray-500">Applied</p>
+          <p className="text-2xl font-bold">
+            {jobs.filter((job) => job.status === "Applied").length}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white p-4 shadow">
+          <p className="text-sm text-gray-500">Interview</p>
+          <p className="text-2xl font-bold">
+            {jobs.filter((job) => job.status === "Interview").length}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white p-4 shadow">
+          <p className="text-sm text-gray-500">Offer</p>
+          <p className="text-2xl font-bold">
+            {jobs.filter((job) => job.status === "Offer").length}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white p-4 shadow">
+          <p className="text-sm text-gray-500">Rejected</p>
+          <p className="text-2xl font-bold">
+            {jobs.filter((job) => job.status === "Rejected").length}
+          </p>
+        </div>
+      </div>
 
       <button
         onClick={() => setShowForm(true)}
