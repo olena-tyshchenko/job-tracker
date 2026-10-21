@@ -12,12 +12,14 @@
     "contract:emit": "prisma contract emit"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.3",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "^8.0.0-rc.8",
     "dotenv": "^17.4.2",
     "install": "^0.13.0",
     "next": "16.3.3",
+    "next-auth": "^5.0.0-beta.32",
     "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
